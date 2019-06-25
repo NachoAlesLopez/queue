@@ -342,13 +342,14 @@ class QueueJobRunner(object):
                  port=8069,
                  user=None,
                  password=None,
+                 ignore_unknown_channels=False,
                  channel_config_string=None):
         self.scheme = scheme
         self.host = host
         self.port = port
         self.user = user
         self.password = password
-        self.channel_manager = ChannelManager()
+        self.channel_manager = ChannelManager(ignore_unknown_channels)
         if channel_config_string is None:
             channel_config_string = _channels()
         self.channel_manager.simple_configure(channel_config_string)

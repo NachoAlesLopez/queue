@@ -798,10 +798,11 @@ class ChannelManager(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, ignore_unknown_channels):
         self._jobs_by_uuid = WeakValueDictionary()
         self._root_channel = Channel(name='root', parent=None, capacity=1)
         self._channels_by_name = WeakValueDictionary(root=self._root_channel)
+        self._ignore_unknown_channels = ignore_unknown_channels
 
     @classmethod
     def parse_simple_config(cls, config_string):
@@ -999,10 +1000,16 @@ class ChannelManager(object):
         try:
             channel = self.get_channel_by_name(channel_name)
         except ChannelNotFound:
-            _logger.warning('unknown channel %s, '
-                            'using root channel for job %s',
-                            channel_name, uuid)
-            channel = self._root_channel
+            if self._ignore_unknown_channels:
+                _logger.warning('ignoring job %s due to unknown channel',
+                                uuid)
+                return False
+            else:
+                _logger.warning('unknown channel %s, '
+                                'using root channel for job %s',
+                                channel_name, uuid)
+                channel = self._root_channel
+
         job = self._jobs_by_uuid.get(uuid)
         if job:
             # db_name is invariant

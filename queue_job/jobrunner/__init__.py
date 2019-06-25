@@ -42,11 +42,15 @@ class QueueJobRunnerThread(Thread):
         password = (os.environ.get('ODOO_QUEUE_JOB_HTTP_AUTH_PASSWORD') or
                     config.misc.get("queue_job", {}).
                     get('http_auth_password'))
+        unknown_channels = (os.environ.get('ODOO_QUEUE_JOB_IGNORE_UNKNOWN') or
+                            config.misc.get("queue_job", {}).
+                            get('ignore_unknown_channels'))
         self.runner = QueueJobRunner(scheme or 'http',
                                      host or 'localhost',
                                      port or 8069,
                                      user,
-                                     password)
+                                     password,
+                                     unknown_channels)
 
     def run(self):
         # sleep a bit to let the workers start at ease
